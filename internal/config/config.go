@@ -19,6 +19,7 @@ import (
 type Config struct {
 	IDCStartURL string `yaml:"idc_start_url"`
 	IDCRegion   string `yaml:"idc_region"`
+	KiroVersion string `yaml:"kiro_version"`
 }
 
 var (
@@ -48,6 +49,7 @@ func Apply(request []byte) {
 	}
 	cfg.IDCStartURL = strings.TrimSpace(cfg.IDCStartURL)
 	cfg.IDCRegion = strings.TrimSpace(cfg.IDCRegion)
+	cfg.KiroVersion = strings.TrimSpace(cfg.KiroVersion)
 
 	mu.Lock()
 	current = cfg

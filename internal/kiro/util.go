@@ -5,14 +5,26 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
+
+	"github.com/xiaokui-dev/cliproxyapi-kiro-plugin/internal/config"
 )
 
-// kiroVersion is the KiroIDE client version advertised in AWS user-agent headers.
-// Upstream is sensitive to this value; bumping it may break access until a new
-// endpoint/version pairing is found.
-const kiroVersion = "0.11.63"
+// defaultKiroVersion is the KiroIDE version advertised in AWS user-agent headers. Kiro
+// rejects retired versions ("This version of Kiro is no longer supported"), so it can be
+// overridden with plugins.configs.kiro.kiro_version without a rebuild.
+const defaultKiroVersion = "1.5.37"
+
+var kiroVersionPattern = regexp.MustCompile(`^[0-9]+(\.[0-9]+){1,3}$`)
+
+func kiroVersion() string {
+	if v := config.Get().KiroVersion; kiroVersionPattern.MatchString(v) {
+		return v
+	}
+	return defaultKiroVersion
+}
 
 // uuidV4 returns a random RFC 4122 version-4 UUID string.
 func uuidV4() string {

@@ -265,8 +265,8 @@ func kiroManagementHeaders(cred kiroCredential, target string) map[string][]stri
 		"TokenType":             {"SSO_OIDC"},
 		"amz-sdk-invocation-id": {uuidV4()},
 		"amz-sdk-request":       {"attempt=1; max=3"},
-		"x-amz-user-agent":      {fmt.Sprintf("aws-sdk-js/1.0.34 KiroIDE-%s-%s", kiroVersion, mid)},
-		"user-agent":            {fmt.Sprintf("aws-sdk-js/1.0.34 ua/2.1 os/other lang/js md/nodejs#20.11.0 api/codewhispererstreaming#1.0.34 m/E KiroIDE-%s-%s", kiroVersion, mid)},
+		"x-amz-user-agent":      {fmt.Sprintf("aws-sdk-js/1.0.34 KiroIDE-%s-%s", kiroVersion(), mid)},
+		"user-agent":            {fmt.Sprintf("aws-sdk-js/1.0.34 ua/2.1 os/other lang/js md/nodejs#20.11.0 api/codewhispererstreaming#1.0.34 m/E KiroIDE-%s-%s", kiroVersion(), mid)},
 	}
 }
 

@@ -1,6 +1,10 @@
 package kiro
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/xiaokui-dev/cliproxyapi-kiro-plugin/internal/config"
+)
 
 func TestNormalizeUsageLimits(t *testing.T) {
 	raw := []byte(`{
@@ -39,5 +43,20 @@ func TestNormalizeUsageLimits(t *testing.T) {
 	}
 	if _, err := normalizeUsageLimits([]byte(`{}`)); err == nil {
 		t.Fatal("empty usage must error")
+	}
+}
+
+func TestKiroVersionDefaultAndOverride(t *testing.T) {
+	resetKiroConfig(t)
+	if kiroVersion() != defaultKiroVersion {
+		t.Fatalf("default %q", kiroVersion())
+	}
+	config.Apply(mustConfigRequest(t, "kiro_version: \"1.6.2\"\n"))
+	if kiroVersion() != "1.6.2" {
+		t.Fatalf("override %q", kiroVersion())
+	}
+	config.Apply(mustConfigRequest(t, "kiro_version: \"1.6 evil/\"\n"))
+	if kiroVersion() != defaultKiroVersion {
+		t.Fatalf("invalid override must fall back, got %q", kiroVersion())
 	}
 }

@@ -78,13 +78,14 @@ func kiroRegistration() registration {
 		SchemaVersion: pluginabi.SchemaVersion,
 		Metadata: pluginapi.Metadata{
 			Name:             providerKiro,
-			Version:          "0.2.0",
+			Version:          "0.2.1",
 			Author:           "xiaokui-dev, Dracula-101",
 			GitHubRepository: "https://github.com/Dracula-101/cliproxyapi-kiro-plugin",
 			Logo:             kiroLogo,
 			ConfigFields: []pluginapi.ConfigField{
 				{Name: "idc_start_url", Type: pluginapi.ConfigFieldTypeString, Description: "Organization IAM Identity Center portal start URL."},
 				{Name: "idc_region", Type: pluginapi.ConfigFieldTypeString, Description: "AWS Region that hosts your Identity Center instance."},
+				{Name: "kiro_version", Type: pluginapi.ConfigFieldTypeString, Description: "Kiro IDE version sent upstream (default " + defaultKiroVersion + "); raise it when Kiro says this version is no longer supported."},
 			},
 		},
 		Capabilities: registrationCapability{

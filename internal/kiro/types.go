@@ -1,6 +1,6 @@
 package kiro
 
-import "github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginapi"
+import "github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginapi"
 
 // providerKiro is the provider key and plugin identifier used across all methods.
 // It must match the plugin binary basename (kiro.dylib / kiro.so) and the
@@ -25,6 +25,7 @@ type registrationCapability struct {
 	ExecutorInputFormats  []string                     `json:"executor_input_formats,omitempty"`
 	ExecutorOutputFormats []string                     `json:"executor_output_formats,omitempty"`
 	ManagementAPI         bool                         `json:"management_api,omitempty"`
+	QuotaProvider         bool                         `json:"quota_provider,omitempty"`
 }
 
 // identifierResponse is the result payload for the *.identifier methods.
@@ -46,4 +47,5 @@ type kiroCredential struct {
 	Region       string `json:"region"`
 	IDCRegion    string `json:"idcRegion"`
 	ProfileArn   string `json:"profileArn"`
+	Provider     string `json:"provider,omitempty"`
 }

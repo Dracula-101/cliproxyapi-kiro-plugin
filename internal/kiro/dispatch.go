@@ -3,8 +3,8 @@ package kiro
 import (
 	"net/http"
 
-	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginabi"
-	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginapi"
+	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginabi"
+	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginapi"
 
 	"github.com/xiaokui-dev/cliproxyapi-kiro-plugin/internal/config"
 	"github.com/xiaokui-dev/cliproxyapi-kiro-plugin/internal/wire"
@@ -23,7 +23,7 @@ func HandleMethod(method string, request []byte) ([]byte, error) {
 
 	// ---- auth provider ----
 	case pluginabi.MethodAuthIdentifier:
-		return wire.OK(identifierResponse{Identifier: providerKiro})
+		return wire.OK(authIdentifier())
 	case pluginabi.MethodAuthParse:
 		return parseKiroAuth(request)
 	case pluginabi.MethodAuthLoginStart:
@@ -51,6 +51,16 @@ func HandleMethod(method string, request []byte) ([]byte, error) {
 		pluginabi.MethodExecutorHTTPRequest:
 		return wire.ErrorStatus("not_implemented", "count-tokens/http-request are not implemented yet", http.StatusNotImplemented), nil
 
+	// ---- quota ----
+	case pluginabi.MethodQuotaIdentifier:
+		return wire.OK(identifierResponse{Identifier: providerKiro})
+	case pluginabi.MethodQuotaDescribe:
+		return wire.OK(pluginapi.QuotaDescribeResponse{SupportedProviders: []string{providerKiro}, DisplayName: "Kiro"})
+	case pluginabi.MethodQuotaFetch:
+		return fetchKiroQuota(request)
+	case pluginabi.MethodQuotaReset:
+		return wire.ErrorStatus("not_implemented", "kiro quota cannot be reset", http.StatusNotImplemented), nil
+
 	// ---- management API ----
 	case pluginabi.MethodManagementRegister:
 		return registerManagement()
@@ -68,9 +78,10 @@ func kiroRegistration() registration {
 		SchemaVersion: pluginabi.SchemaVersion,
 		Metadata: pluginapi.Metadata{
 			Name:             providerKiro,
-			Version:          "0.1.1",
-			Author:           "xiaokui-dev",
-			GitHubRepository: "https://github.com/xiaokui-dev/cliproxyapi-kiro-plugin",
+			Version:          "0.2.0",
+			Author:           "xiaokui-dev, Dracula-101",
+			GitHubRepository: "https://github.com/Dracula-101/cliproxyapi-kiro-plugin",
+			Logo:             kiroLogo,
 			ConfigFields: []pluginapi.ConfigField{
 				{Name: "idc_start_url", Type: pluginapi.ConfigFieldTypeString, Description: "Organization IAM Identity Center portal start URL."},
 				{Name: "idc_region", Type: pluginapi.ConfigFieldTypeString, Description: "AWS Region that hosts your Identity Center instance."},
@@ -84,6 +95,7 @@ func kiroRegistration() registration {
 			ExecutorInputFormats:  []string{"claude"},
 			ExecutorOutputFormats: []string{"claude"},
 			ManagementAPI:         true,
+			QuotaProvider:         true,
 		},
 	}
 }

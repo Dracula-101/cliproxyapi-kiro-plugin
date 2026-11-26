@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginapi"
+	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginapi"
 
 	"github.com/xiaokui-dev/cliproxyapi-kiro-plugin/internal/config"
 	"github.com/xiaokui-dev/cliproxyapi-kiro-plugin/internal/wire"
@@ -123,6 +123,9 @@ func startKiroLogin(request []byte) ([]byte, error) {
 	if errUnmarshal := json.Unmarshal(request, &req); errUnmarshal != nil {
 		return nil, errUnmarshal
 	}
+	if strings.EqualFold(strings.TrimSpace(req.Provider), providerKiro) {
+		return startSocialLogin()
+	}
 
 	// The login method is inferred from config rather than chosen explicitly: a
 	// configured idc_start_url means the user wants organization IAM Identity
@@ -193,6 +196,9 @@ func pollKiroLogin(request []byte) ([]byte, error) {
 	if errUnmarshal := json.Unmarshal(request, &req); errUnmarshal != nil {
 		return nil, errUnmarshal
 	}
+	if metaString(req.Metadata, "flow") == socialFlow {
+		return pollSocialLogin(req)
+	}
 
 	metadata := req.Metadata
 	clientID := metaString(metadata, "clientId")
@@ -255,7 +261,7 @@ func buildLoginSuccess(token *oidcTokenResponse, clientID, clientSecret, region,
 	}
 	expiresAt := time.Now().UTC().Add(time.Duration(expiresIn) * time.Second)
 
-	cred := kiroCredential{
+	return credentialSuccess(kiroCredential{
 		Type:         providerKiro,
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
@@ -265,7 +271,11 @@ func buildLoginSuccess(token *oidcTokenResponse, clientID, clientSecret, region,
 		AuthMethod:   authMethod,
 		Region:       region,
 		IDCRegion:    region,
-	}
+	}, expiresAt, "Kiro ("+authMethod+")")
+}
+
+// credentialSuccess wraps a completed Kiro credential as the login poll's success result.
+func credentialSuccess(cred kiroCredential, expiresAt time.Time, label string) pluginapi.AuthLoginPollResponse {
 	storage, errMarshal := json.Marshal(cred)
 	if errMarshal != nil {
 		return pluginapi.AuthLoginPollResponse{
@@ -277,9 +287,9 @@ func buildLoginSuccess(token *oidcTokenResponse, clientID, clientSecret, region,
 	fileName := "kiro-" + randomHexN(6) + ".json"
 	metadata := map[string]any{
 		"type":                     providerKiro,
-		"authMethod":               authMethod,
+		"authMethod":               cred.AuthMethod,
 		"expiresAt":                cred.ExpiresAt,
-		"region":                   region,
+		"region":                   cred.Region,
 		"refresh_interval_seconds": refreshIntervalSeconds,
 	}
 
@@ -289,7 +299,7 @@ func buildLoginSuccess(token *oidcTokenResponse, clientID, clientSecret, region,
 			Provider:         providerKiro,
 			ID:               fileName,
 			FileName:         fileName,
-			Label:            "Kiro (" + authMethod + ")",
+			Label:            label,
 			StorageJSON:      storage,
 			Metadata:         metadata,
 			NextRefreshAfter: expiresAt.Add(-refreshLeadTime),

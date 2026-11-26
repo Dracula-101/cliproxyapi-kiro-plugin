@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginapi"
+	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginapi"
 
 	"github.com/xiaokui-dev/cliproxyapi-kiro-plugin/internal/hostapi"
 
@@ -75,7 +75,7 @@ func TestStartKiroLoginDeviceFlow(t *testing.T) {
 		}
 	}
 
-	raw, err := startKiroLogin([]byte(`{"Provider":"kiro","host_callback_id":"cb-1"}`))
+	raw, err := startKiroLogin([]byte(`{"Provider":"kiro-builder-id","host_callback_id":"cb-1"}`))
 	if err != nil {
 		t.Fatalf("startKiroLogin: %v", err)
 	}
@@ -124,7 +124,7 @@ func TestStartKiroLoginOrgIdC(t *testing.T) {
 		}
 	}
 
-	raw, err := startKiroLogin([]byte(`{"Provider":"kiro","host_callback_id":"cb-1"}`))
+	raw, err := startKiroLogin([]byte(`{"Provider":"kiro-builder-id","host_callback_id":"cb-1"}`))
 	if err != nil {
 		t.Fatalf("startKiroLogin: %v", err)
 	}

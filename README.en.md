@@ -62,7 +62,21 @@ The login method is **inferred** from whether `idc_start_url` is set:
 
 - **AWS Builder ID (default, personal free account)**: leave `idc_start_url` empty. After saving, start the device-code login from the "Kiro OAuth" page in the panel and authorize in the browser — no other fields needed.
 - **Organization IDC (IAM Identity Center)**: fill in `idc_start_url` (the organization portal URL), and `idc_region` if needed (defaults to `us-east-1` when empty). Start the device-code login from the "Kiro OAuth" page after saving.
-- **Google / GitHub**: no interactive login (limited by the upstream Cognito callback allowlist). Sign in with the Kiro desktop app, then export the credential JSON into `auth-dir`. The JSON must contain `accessToken`, `refreshToken`, `profileArn`, `authMethod` (value `social`), and `region` (usually `us-east-1`); it refreshes automatically after import.
+- **Google / GitHub** (fork addition, v0.2.0): the "Kiro (Google / GitHub)" tile opens Kiro's own sign-in portal the way kiro-cli does (`app.kiro.dev/signin`, PKCE, callback to the allowlisted `http://localhost:3128/oauth/callback`). On a remote server that callback page will not load: copy its full address from the browser bar into the panel's callback field. The plugin rebuilds the exact `redirect_uri` (port, path and `login_option`) and exchanges the code at `prod.us-east-1.auth.desktop.kiro.dev/oauth/token`. Needs the Dracula-101/cpa-management-center panel (it forwards the whole pasted address; the stock panel drops `login_option`). Importing a credential JSON with `authMethod: social` still works too.
+- **Builder ID** has its own "Kiro (Builder ID)" tile (device code).
+
+## Quota (fork addition)
+
+The plugin is a quota provider: Auth Files and Quota Management show the credit buckets from `getUsageLimits` (main credits, active bonuses, active free trial) with reset times and the plan name.
+
+## Building for CLIProxyAPI v8
+
+This fork targets the v8 SDK (`github.com/router-for-me/CLIProxyAPI/v8 v8.1.3`, schema 10). Linux/amd64 build used for releases:
+
+```bash
+docker run --rm --platform linux/amd64 -v "$PWD":/src -w /src golang:1.26-bookworm \
+  sh -c 'CGO_ENABLED=1 go build -buildmode=c-shared -trimpath -ldflags="-s -w" -o dist/linux/amd64/kiro.so .'
+```
 
 Verify after login:
 

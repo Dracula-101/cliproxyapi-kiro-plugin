@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginapi"
+	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginapi"
 
 	"github.com/xiaokui-dev/cliproxyapi-kiro-plugin/internal/hostapi"
 	"github.com/xiaokui-dev/cliproxyapi-kiro-plugin/internal/wire"
